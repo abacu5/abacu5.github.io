@@ -1,0 +1,15 @@
+---
+layout: default
+---
+<div class="post-header">
+  <h1>{{ page.title }}</h1>
+  <div class="meta-block">
+    {% if page.platform %}<span class="k">source</span> <span class="v">{{ page.platform }}</span>{% endif %}
+    {% if page.difficulty %}<span class="k">difficulty</span> <span class="v">{{ page.difficulty }}</span>{% endif %}
+    {% if page.os %}<span class="k">os</span> <span class="v">{{ page.os }}</span>{% endif %}
+    <span class="k">published</span> <span class="v">{{ page.date | date: "%d %b %Y" }}</span>
+  </div>
+</div>
+<article class="post">
+  {{ content }}
+</article>

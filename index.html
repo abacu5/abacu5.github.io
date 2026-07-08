@@ -1,0 +1,15 @@
+---
+layout: default
+---
+<ul class="post-list">
+  {% for post in site.posts %}
+  <li class="post-row">
+    <span class="tag">{{ post.difficulty | default: "WRITEUP" | upcase }}</span>
+    <div>
+      <a class="title" href="{{ post.url | relative_url }}">{{ post.title }}</a>
+      {% if post.excerpt %}<div class="excerpt">{{ post.excerpt | strip_html | truncate: 130 }}</div>{% endif %}
+    </div>
+    <span class="date">{{ post.date | date: "%d %b %Y" }}</span>
+  </li>
+  {% endfor %}
+</ul>

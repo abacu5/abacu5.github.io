@@ -1,0 +1,28 @@
+title: Abacus // writeups
+description: Pentest notes, CTF walkthroughs, and vulnerability research.
+author: Abacus
+url: "https://abacu5.github.io"
+baseurl: ""
+
+markdown: kramdown
+kramdown:
+  syntax_highlighter: rouge
+highlighter: rouge
+
+permalink: /:categories/:title/
+
+collections:
+  posts:
+    output: true
+
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
