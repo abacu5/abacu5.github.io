@@ -29,7 +29,7 @@ Found the target on the local subnet with an ARP scan:
 netdiscover -i eth0
 ```
 
-The target resolved to `192.168.1.3` — a VirtualBox adapter MAC, confirming the VM.
+The target resolved to `192.168.1.3`  a VirtualBox adapter MAC, confirming the VM.
 
 ## Port Scanning
 
@@ -42,7 +42,7 @@ nmap -sV -sC 192.168.1.3
 | 80/tcp | HTTP | Apache 2.4.18 (Ubuntu), WordPress 4.1.31 |
 | 4512/tcp | SSH | OpenSSH 7.2p2 Ubuntu |
 
-Worth noting: SSH on a non-standard port (4512) — potentially useful later for lateral
+Worth noting: SSH on a non-standard port (4512)  potentially useful later for lateral
 movement if credentials turn up.
 
 ## Web Enumeration
@@ -80,7 +80,7 @@ Set up the listener:
 nc -nlvp 7777
 ```
 
-Refreshing the WordPress homepage triggered the shell — an immediate connect-back as
+Refreshing the WordPress homepage triggered the shell  an immediate connect-back as
 `www-data`. Upgraded it to a proper TTY:
 
 ```
@@ -97,7 +97,7 @@ cat /var/www/html/wp-config.php
 
 That surfaced a DB username/password pair. Since credential reuse across
 application and system accounts is common, I tried switching to the matching
-system user with the same password — and it worked, landing a shell as `c0ldd`.
+system user with the same password  and it worked, landing a shell as `c0ldd`.
 
 ## Privilege Escalation via Sudo + GTFOBins
 
@@ -106,7 +106,7 @@ sudo -l
 ```
 
 `c0ldd` had passwordless sudo rights on three binaries: `vim`, `chmod`, and `ftp`.
-All three have known GTFOBins privesc paths — I went with `ftp`:
+All three have known GTFOBins privesc paths  I went with `ftp`:
 
 ```
 sudo ftp
@@ -126,12 +126,12 @@ netdiscover → nmap (port 80: WordPress) → dirb (/wp-admin)
 
 ## Key Takeaways
 
-1. Non-standard service ports (like SSH on 4512) are worth flagging early — they
+1. Non-standard service ports (like SSH on 4512) are worth flagging early  they
    can become useful once credentials are in hand.
 2. WordPress theme/plugin editors are a classic, reliable RCE vector once admin
    access is obtained.
 3. Config files like `wp-config.php` frequently leak credentials that get reused
-   at the system level — always check them.
+   at the system level  always check them.
 4. GTFOBins is essential reading. Any time `sudo -l` shows binaries like `vim`,
    `ftp`, or `chmod`, there's almost always a privesc path.
 5. Sudo misconfigurations remain one of the most common real-world privesc
