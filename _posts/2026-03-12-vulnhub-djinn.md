@@ -40,7 +40,7 @@ nmap -sV -sC 192.168.1.7
 |------|---------|-------|
 | 21/tcp | FTP | vsftpd 3.0.3, anonymous login allowed |
 | 22/tcp | SSH | filtered |
-| 1337/tcp | custom | "answer 1000 maths questions" challenge — likely a rabbit hole |
+| 1337/tcp | custom | "answer 1000 maths questions" challenge  likely a rabbit hole |
 | 7331/tcp | HTTP | Werkzeug 0.16.0 (Python 2.7.15+), non-standard port |
 
 ## FTP Anonymous Access
@@ -55,7 +55,7 @@ get game.txt
 get message.txt
 ```
 
-These gave early hints about system users and credentials — worth grabbing before
+These gave early hints about system users and credentials  worth grabbing before
 digging into the web service.
 
 ## Web Enumeration
@@ -74,7 +74,7 @@ one.
 
 `/wish` presented a simple "make a wish" form that executes whatever's submitted.
 Testing basic OS commands confirmed the output was reflected back through `/genie`
-as a URL-encoded string — command execution confirmed.
+as a URL-encoded string  command execution confirmed.
 
 A direct reverse shell payload got rejected with a filter message, meaning certain
 characters and keywords were blacklisted.
@@ -130,7 +130,7 @@ sudo -l
 `sam` had passwordless sudo on a custom binary at `/root/lago`. Running it presented
 an interactive menu (guess-the-number, read files, etc). Choosing the "guess the
 number" option and then entering a non-numeric string instead of a number crashed
-the program straight into a root shell — a classic unhandled-input bug turned into a
+the program straight into a root shell  a classic unhandled-input bug turned into a
 privesc primitive.
 
 ## Capturing the Flag
@@ -150,17 +150,17 @@ netdiscover → nmap (FTP anon + HTTP on :7331)
 
 ## Key Takeaways
 
-1. Scan all ports, not just the common ones — both the web service (7331) and the
+1. Scan all ports, not just the common ones  both the web service (7331) and the
    decoy challenge (1337) were on non-standard ports a default scan could easily miss.
-2. Anonymous FTP is worth checking early — the credentials found there enabled
+2. Anonymous FTP is worth checking early  the credentials found there enabled
    lateral movement much later in the chain.
-3. Command injection filters are rarely airtight — when direct payloads get
+3. Command injection filters are rarely airtight  when direct payloads get
    blocked, encoding tricks like Base64 are a reliable way around keyword/character
    blacklists.
-4. Run `sudo -l` at every privilege level — each user in this chain had a distinct
+4. Run `sudo -l` at every privilege level  each user in this chain had a distinct
    sudo permission that formed the next hop.
 5. Custom binaries with unexpected or unvalidated input are a real-world
-   anti-pattern, not just a CTF trope — `/root/lago` crashing to a shell on bad
+   anti-pattern, not just a CTF trope  `/root/lago` crashing to a shell on bad
    input is exactly the kind of bug that shows up in production code too.
 
 ## Tools Used
