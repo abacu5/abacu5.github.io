@@ -58,7 +58,7 @@ header.banner .prompt {
   font-size: 13px;
   margin-bottom: 6px;
 }
-header.banner .prompt::before { content: "abacus@dubai:~$ "; color: var(--amber-dim); }
+header.banner .prompt::before { content: "abacu5:~$ "; color: var(--amber-dim); }
 
 header.banner h1 {
   margin: 0 0 8px;
@@ -89,7 +89,7 @@ main { padding: 32px 0 80px; }
 
 .post-row {
   display: grid;
-  grid-template-columns: 84px 1fr auto;
+  grid-template-columns: minmax(84px, max-content) 1fr auto;
   gap: 16px;
   align-items: baseline;
   padding: 16px 0;
