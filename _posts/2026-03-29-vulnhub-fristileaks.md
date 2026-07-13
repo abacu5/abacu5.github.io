@@ -40,16 +40,16 @@ nmap -T4 -A -p- 192.168.1.17
 
 Only one port open: 80/tcp, Apache 2.2.15 (CentOS) with DAV/2 and PHP/5.3.3. The
 scan also flagged a `robots.txt` with three disallowed entries, and an unusual
-"Site doesn't have a title" HTTP title — both worth digging into.
+"Site doesn't have a title" HTTP title  both worth digging into.
 
 ## Web Enumeration
 
 The homepage was a themed page with nothing actionable in its source.
-`robots.txt` disallowed three paths — `/cola`, `/sisi`, `/beer` — and each one
+`robots.txt` disallowed three paths  `/cola`, `/sisi`, `/beer`  and each one
 just served a troll image. Classic rabbit hole.
 
 The pattern was drink-themed, and the homepage prominently referenced "fristi," so
-guessing a hidden `/fristi` path paid off — it revealed an admin login portal.
+guessing a hidden `/fristi` path paid off  it revealed an admin login portal.
 
 ## Credentials from Page Source
 
@@ -66,7 +66,7 @@ credentials.
 ## File Upload Filter Bypass
 
 The portal offered a file upload feature. Uploading a PHP reverse shell directly
-got rejected — the app was filtering by file extension, only allowing
+got rejected  the app was filtering by file extension, only allowing
 `png`/`jpg`/`gif`.
 
 The fix: rename the shell to spoof a double extension, e.g. `shell.php.jpg`. The
@@ -89,7 +89,7 @@ sat a notes file describing a cron job setup: a script running every minute as a
 more privileged user, executing whatever commands were written into a specific
 file in `/tmp`.
 
-That's a direct cron abuse opportunity — writing a `chmod` command into the
+That's a direct cron abuse opportunity  writing a `chmod` command into the
 watched file, then waiting for the cron to fire, opened up access to the more
 privileged user's home directory.
 
@@ -106,7 +106,7 @@ working plaintext passwords from the encoded files.
 
 Switched to the next user with one of the decoded passwords via `su`. That user's
 directory contained a `.bash_history` showing repeated use of a custom binary
-being run through `sudo` as yet another user — a clear pointer toward the final
+being run through `sudo` as yet another user  a clear pointer toward the final
 privesc step.
 
 ## Privilege Escalation
@@ -140,22 +140,22 @@ netdiscover → nmap (port 80 only, robots.txt rabbit holes)
 
 1. `robots.txt` disallowed entries aren't always the actual target, but they hint
    at naming conventions. The themed pattern here pointed straight at the real
-   hidden admin path — use `robots.txt` to understand site structure, not just as
+   hidden admin path  use `robots.txt` to understand site structure, not just as
    a checklist of URLs to visit.
 2. Always read the full page source. A username and an entire password hidden
-   inside an image were sitting in plain HTML — automated tools won't always catch
+   inside an image were sitting in plain HTML  automated tools won't always catch
    this; manual source review is a habit worth keeping.
 3. File upload filters based purely on extension are weak. Double extensions,
    case variations, and MIME type mismatches are all worth testing the moment you
    hit an upload restriction.
 4. Cron job abuse is a powerful lateral movement technique. Any time a privileged
    cron reads commands from a world-writable file, whoever can write to that file
-   can execute as the cron owner — always check scheduled tasks during
+   can execute as the cron owner  always check scheduled tasks during
    enumeration.
 5. Custom encoding scripts are decodable the moment you find them alongside their
-   own encoded output — read the logic, invert the operations, decode.
+   own encoded output  read the logic, invert the operations, decode.
 6. `.bash_history` reveals intended workflows. The path to the final privesc
-   binary and how to invoke it were both sitting in plain history — never skip it.
+   binary and how to invoke it were both sitting in plain history  never skip it.
 
 ## Tools Used
 
