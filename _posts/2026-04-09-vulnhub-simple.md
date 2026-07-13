@@ -20,7 +20,7 @@ constantly in real-world engagements.
 - CVE research and exploit identification (CuteNews 2.0.3 remote file upload)
 - Unrestricted file upload via the avatar upload feature
 - Reverse shell via a PHP webshell
-- Linux kernel exploit — OverlayFS local root (CVE-2015-1328)
+- Linux kernel exploit  OverlayFS local root (CVE-2015-1328)
 
 ## Network Discovery
 
@@ -37,13 +37,13 @@ nmap -sV -sC 192.168.1.11
 ```
 
 Only port 80 open, Apache 2.4.7 (Ubuntu). The scan immediately surfaced two useful
-details: the HTTP title referenced CuteNews, and the CMS version — 2.0.3 — was
+details: the HTTP title referenced CuteNews, and the CMS version  2.0.3  was
 visible right in the page footer.
 
 ## Web Enumeration
 
 The site was a CuteNews v2.0.3 login page. Running `dirb` turned up an `/uploads`
-directory with directory listing enabled — meaning anything uploaded there would
+directory with directory listing enabled  meaning anything uploaded there would
 be directly browsable. A strong early signal that file upload exploitation was
 the intended path.
 
@@ -52,7 +52,7 @@ the intended path.
 Rather than spending time on credential guessing, checking the CMS version
 against known vulnerabilities paid off immediately: CuteNews 2.0.3 has a
 documented remote file upload vulnerability on Exploit-DB. The technique doesn't
-need admin credentials at all — just a self-registered account:
+need admin credentials at all  just a self-registered account:
 
 1. Register a new account (registration was open)
 2. Log in, go to Personal Options → avatar upload
@@ -77,7 +77,7 @@ Started a listener:
 nc -nvlp 7777
 ```
 
-Navigated to the uploaded file's URL to trigger execution — got a connect-back
+Navigated to the uploaded file's URL to trigger execution  got a connect-back
 running as `www-data`.
 
 ## Kernel Version Fingerprinting
@@ -86,7 +86,7 @@ running as `www-data`.
 uname -a
 ```
 
-Reported an Ubuntu 14.04 kernel from January 2015 — old enough to be a strong
+Reported an Ubuntu 14.04 kernel from January 2015  old enough to be a strong
 candidate for a known local privilege escalation exploit. Searching Exploit-DB for
 that kernel range returned a solid hit: the OverlayFS local root exploit
 (CVE-2015-1328), which abuses a flaw in the kernel's overlay filesystem
@@ -124,23 +124,23 @@ netdiscover → nmap (port 80: CuteNews 2.0.3)
 
 ## Key Takeaways
 
-1. Always fingerprint the CMS version — CuteNews advertised its version right in
+1. Always fingerprint the CMS version  CuteNews advertised its version right in
    the page footer. Version strings in footers, headers, and HTTP responses are
    one of the first things worth checking, since they map directly to known CVEs.
 2. Open self-registration is a meaningful attack surface on its own. This
    vulnerability needed no admin credentials at all, just a valid registered
-   account — any app allowing open self-registration needs strict controls on
+   account  any app allowing open self-registration needs strict controls on
    what authenticated users can actually do.
 3. Unrestricted file upload remains a critical, common vulnerability class. The
    avatar feature accepted PHP files without server-side content-type
-   validation — uploading executable code into a web-accessible directory is a
+   validation  uploading executable code into a web-accessible directory is a
    direct line to remote code execution, and this still shows up regularly in
    real-world applications.
 4. Kernel version matters for post-exploitation. Running `uname -a` immediately
-   after landing a shell is a fundamental step — older, unpatched kernels are
+   after landing a shell is a fundamental step  older, unpatched kernels are
    frequently vulnerable to public local privilege escalation exploits.
 5. Compile exploits on the target when possible. Transferring source and
-   compiling with `gcc` on-target avoids architecture mismatches — a pre-compiled
+   compiling with `gcc` on-target avoids architecture mismatches  a pre-compiled
    binary can silently fail if the target is 32-bit and the attacker machine is
    64-bit.
 
