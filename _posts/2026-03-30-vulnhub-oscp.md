@@ -40,7 +40,7 @@ nmap -T4 -A -p- 192.168.1.8
 | 80/tcp | HTTP | Apache 2.4.41, WordPress 5.4.2 |
 | 33060/tcp | mysqlx | MySQL X Protocol |
 
-The scan also flagged a `robots.txt` disallowing a single path — `/secret.txt` —
+The scan also flagged a `robots.txt` disallowing a single path  `/secret.txt` 
 worth checking immediately.
 
 ## Web Enumeration
@@ -73,7 +73,7 @@ chmod 600 id
 ssh oscp@192.168.1.8 -i id
 ```
 
-Logged straight in — no password needed, the key handled authentication.
+Logged straight in  no password needed, the key handled authentication.
 
 ## Privilege Escalation via SUID bash
 
@@ -92,7 +92,7 @@ cd /usr/bin
 ./bash -p
 ```
 
-`id` confirmed an effective UID of 0 — root.
+`id` confirmed an effective UID of 0  root.
 
 ## Capturing the Flag
 
@@ -112,19 +112,19 @@ netdiscover → nmap (SSH + WordPress)
 ## Key Takeaways
 
 1. Read web page content thoroughly before reaching for tools. The username was
-   stated explicitly in the post body — skimming straight to directory fuzzing
+   stated explicitly in the post body  skimming straight to directory fuzzing
    would have missed it entirely.
-2. `robots.txt` disallowed entries are explicit hints in a CTF context — always
+2. `robots.txt` disallowed entries are explicit hints in a CTF context  always
    check every disallowed path rather than assuming it's a dead end.
 3. Base64 can encode entire files, not just passwords. An SSH private key is just
    text, and text encodes cleanly. Any large Base64 block is worth decoding and
    checking the file type on, not dismissing as "probably just a credential."
-4. SSH private key permissions matter — `chmod 600` isn't optional. SSH will
+4. SSH private key permissions matter  `chmod 600` isn't optional. SSH will
    refuse a key with overly permissive file permissions as a security measure,
    which trips up a lot of beginners the first time they hit it.
 5. SUID on `/bin/bash` or `/usr/bin/bash` is close to an instant root. The `-p`
    flag tells bash to start in privileged mode, preserving the effective UID set
-   by the SUID bit — one of the most well-known Linux privesc misconfigurations,
+   by the SUID bit  one of the most well-known Linux privesc misconfigurations,
    worth checking for on every box.
 
 ## Tools Used
