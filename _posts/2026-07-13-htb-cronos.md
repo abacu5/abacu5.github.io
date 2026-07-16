@@ -6,7 +6,7 @@ os: "Linux"
 excerpt: "DNS zone transfer reveals a hidden admin panel, SQL injection bypasses the login, command injection lands a shell, and a root cron job running Laravel finishes the job."
 ---
 
-*Retired HTB machine — writeup shared per HTB's community guidelines.*
+*Retired HTB machine  writeup shared per HTB's community guidelines.*
 
 Cronos is a Linux box that strings together several classic techniques into one
 coherent chain: DNS enumeration to find a hidden subdomain, a SQL injection login
@@ -17,7 +17,7 @@ is a fairly direct hint about where root ends up coming from.
 ## Recon
 
 An initial Nmap scan showed three open ports: 22 (SSH), 53 (DNS), and 80 (HTTP).
-Browsing to port 80 directly didn't show much of use — with DNS open, the more
+Browsing to port 80 directly didn't show much of use  with DNS open, the more
 interesting move was checking whether the name server would hand over its full
 zone data.
 
@@ -25,7 +25,7 @@ zone data.
 
 ## Hostname Discovery via Zone Transfer
 
-Requesting a DNS zone transfer against the target's name server worked — a
+Requesting a DNS zone transfer against the target's name server worked  a
 classic misconfiguration where a DNS server hands its complete zone file to
 anyone who asks, rather than restricting transfers to trusted secondary servers:
 
@@ -40,7 +40,7 @@ This returned several hostnames beyond the base domain, including
 
 ## Web Enumeration
 
-`admin.cronos.htb` turned out to be the interesting one — it led straight to a
+`admin.cronos.htb` turned out to be the interesting one  it led straight to a
 login page.
 
 ![Admin login page](/assets/img/htb-cronos/03-login-page.png)
@@ -57,7 +57,7 @@ Tool v0.1."
 
 ## Command Injection
 
-The Net Tool page offered network utility functions — traceroute and ping —
+The Net Tool page offered network utility functions  traceroute and ping 
 which are a common source of command injection when user input gets passed
 straight to a shell command. Testing the traceroute field with an appended
 `; ls -la` confirmed it: the extra command executed and its output came back in
@@ -129,14 +129,14 @@ question became: can `www-data` influence what actually executes?
 ## Privilege Escalation
 
 Checking file ownership and permissions on `artisan` confirmed it was owned by
-`www-data` — meaning the low-privileged web user had full write access to a
+`www-data`  meaning the low-privileged web user had full write access to a
 file that root's cron job executes every minute, without ever validating its
 contents.
 
 ![Confirming write access to the artisan file](/assets/img/htb-cronos/14-artisan-permissions.png)
 
 With write access confirmed, replacing `artisan`'s contents with a PHP reverse
-shell payload and waiting for the next cron cycle was enough — the cron job
+shell payload and waiting for the next cron cycle was enough  the cron job
 executed the file as root, exactly as scheduled, and a new connection landed on
 a fresh listener running as `root`.
 
@@ -168,19 +168,19 @@ nmap (22, 53, 80) → DNS zone transfer reveals admin.cronos.htb
    fastest ways to discover hidden subdomains that never show up in web
    directory brute-forcing.
 2. Login forms are always worth a basic SQL injection check before anything
-   else — a payload as simple as `admin'--` bypassing authentication entirely
+   else  a payload as simple as `admin'--` bypassing authentication entirely
    is still common on custom-built admin panels.
 3. Any feature that shells out to system utilities (traceroute, ping, nslookup)
    is a prime command injection candidate. Test with a simple appended command
    before assuming input is sanitized.
 4. Cron jobs running as root against files owned by a lower-privileged user are
-   a direct and reliable privilege escalation path — always check
+   a direct and reliable privilege escalation path  always check
    `/etc/crontab` and any user-specific crontabs during enumeration, and check
    file ownership on anything a privileged cron job touches.
 5. Framework-specific task runners (like Laravel's `artisan`) are still just
    files on disk. If a lower-privileged account can write to the file a
    privileged scheduled task executes, the framework's own security model
-   doesn't matter — file permissions are what actually decide who controls
+   doesn't matter  file permissions are what actually decide who controls
    execution.
 
 ## Tools Used
